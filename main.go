@@ -63,9 +63,14 @@ func main() {
 		APIKey:       os.Getenv("OPENAI_API_KEY"),
 	}
 
-	model := flag.String("m", "text-davinci-003", "language model to use. Default: text-davinci-003")
-	maxTokens := flag.Int("t", 2048, "Max tokens to use. Default: 2048")
+	model := flag.String("m", "text-davinci-003", "language model to use.")
+	maxTokens := flag.Int("t", 2048, "Max tokens to use.")
+	numChoices := flag.Int("c", 1, "How many choices/variations would you like.")
+
 	flag.Parse()
+	if len(os.Args) < 2 {
+		log.Fatal("Please provide a prompt")
+	}
 
 	prompt := os.Args[1]
 
@@ -73,6 +78,7 @@ func main() {
 		Model:     *model,
 		MaxTokens: int64(*maxTokens),
 		Prompt:    prompt,
+		N:         int64(*numChoices),
 	}
 
 	response, err := newAiClient.RequestCompletion(newReq)

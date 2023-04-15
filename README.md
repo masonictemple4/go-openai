@@ -2,7 +2,7 @@
 A wrapper around the openai api for golang
 
 ### TODOS:
-[] Text completion
+[x] Text completion
 
 
 

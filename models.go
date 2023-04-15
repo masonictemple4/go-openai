@@ -34,7 +34,7 @@ type CompletionRequestBody struct {
 	// ass data-only server-sent events as they become available. with the Stream
 	// terminated by a data: [Done] message.
 	Stream bool `json:"stream,omitempty"`
-	// Include the log probabilites on the logprobs most liely tokens, as well the chosen tokens.
+	// Include the log probabilites on the logprobs most likely tokens, as well the chosen tokens.
 	// For example, if logprobs is 5, the api will return a list of the 5 most likely tokens.
 	Logprobs int64 `json:"logprobs,omitempty"`
 	// Echo back the prompt in addititon to the completion.
