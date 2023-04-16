@@ -1,5 +1,31 @@
 package main
 
+type ImageGenerationResponseDataItem struct {
+	// The url of the image
+	Url string `json:"url,omitempty"`
+}
+
+type ImageGenerationResponseBody struct {
+	// When was this response created.
+	Created int64 `json:"created,omitempty"`
+	// The response data.
+	Data []ImageGenerationResponseDataItem `json:"data,omitempty"`
+}
+
+type ImageGenerationRequestBody struct {
+	// A text description of the desired image(s). The maximum length is 1000 characters.
+	Prompt string `json:"prompt,omitempty"`
+	// The number of images to generate. Must be between 1 and 10.
+	N int64 `json:"n,omitempty"`
+	// The size of the generated images. Must be one of 256x256, 512x512, or 1024x1024.
+	Size string `json:"size,omitempty"`
+	// The format the generated images should return in. Must be one of url or b64_json
+	ResponseFormat string `json:"response_format,omitempty"`
+	// The unique identifier representing your end-user, which can help OpenAI to monitor
+	// and detect abuse.
+	User string `json:"user,omitempty"`
+}
+
 // Supporpted models is a map of model keys with the value of eligible endpoints they can hit.
 var SupportedModels = map[string][]string{}
 

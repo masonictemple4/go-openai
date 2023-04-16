@@ -22,6 +22,52 @@ type OpenAIClient struct {
 	RateLimit    int64
 }
 
+func (o OpenAIClient) RequestImageGeneration(body ImageGenerationRequestBody) (*ImageGenerationResponseBody, error) {
+	client := &http.Client{}
+
+	byts, err := json.Marshal(body)
+	if err != nil {
+		return nil, err
+	}
+
+	data, _ := json.MarshalIndent(body, "", "  ")
+	fmt.Printf("\n%s\n", data)
+
+	reqBody := bytes.NewBuffer(byts)
+
+	req, err := http.NewRequest("POST", "https://api.openai.com/v1/images/generations", reqBody)
+	if err != nil {
+		return nil, err
+	}
+	defer req.Body.Close()
+
+	if o.Organization != "" {
+		req.Header.Add("OpenAI-Organization", o.Organization)
+	}
+
+	req.Header.Add("Content-Type", "application/json")
+	req.Header.Add("Authorization", "Bearer "+o.APIKey)
+
+	res, err := client.Do(req)
+	if err != nil {
+		return nil, err
+	}
+
+	if res.StatusCode != http.StatusOK {
+		fmt.Printf("\nThe response error is: %+v", res)
+		return nil, errors.New("Invalid request.")
+	}
+
+	var resp ImageGenerationResponseBody
+	err = json.NewDecoder(res.Body).Decode(&resp)
+	if err != nil {
+		return nil, err
+	}
+
+	return &resp, nil
+
+}
+
 func (o OpenAIClient) RequestCompletion(body ChatCompletionRequestBody) (*ChatCompletionResponse, error) {
 	client := &http.Client{}
 
@@ -69,6 +115,7 @@ var MODE string = "default"
 
 func main() {
 
+	apiMode := flag.String("mode", "chat", "Chat, Completion, Image, Audio, File")
 	config := flag.String("l", "/etc/env/openai.env", "Config path.")
 	model := flag.String("m", "gpt-3.5-turbo", "language model to use.")
 	role := flag.String("r", ChatCompletionMessageRoleMap["user"], "The role of the completion.")
@@ -112,6 +159,24 @@ func main() {
 			log.Fatal(err)
 		}
 
+		if *apiMode == "image" {
+			prompt, size := ProcessImagePrompt(text)
+			newReq := ImageGenerationRequestBody{
+				Size:           fmt.Sprintf("%dx%d", size, size),
+				Prompt:         prompt,
+				ResponseFormat: "url",
+				N:              int64(*numChoices),
+			}
+
+			response, err := newAiClient.RequestImageGeneration(newReq)
+			if err != nil {
+				log.Fatal(err)
+			}
+
+			fmt.Printf("\nChatGPT: %s\n", FormatImageResponseText(response))
+			continue
+		}
+
 		if MODE == "default" {
 			// TODO: We're going to need to detect what model to use here
 			// based on the completion model selected.
@@ -136,6 +201,16 @@ func main() {
 }
 
 // TODO: Needs to be an interface function for the Response models.
+func FormatImageResponseText(resp *ImageGenerationResponseBody) string {
+	var urls []string
+	for i := range resp.Data {
+		urls = append(urls, resp.Data[i].Url)
+	}
+	text := strings.Join(urls, "\n")
+	text = strings.TrimLeft(text, "?\n")
+	return text
+}
+
 func FormatChatResponseText(resp *ChatCompletionResponse) string {
 	text := resp.Choices[0].Message.Content
 	text = strings.TrimLeft(text, "?\n")
