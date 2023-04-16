@@ -68,7 +68,50 @@ func (o OpenAIClient) RequestImageGeneration(body ImageGenerationRequestBody) (*
 
 }
 
-func (o OpenAIClient) RequestCompletion(body ChatCompletionRequestBody) (*ChatCompletionResponse, error) {
+func (o OpenAIClient) RequestCompletion(body CompletionRequestBody) (*CompletionResponse, error) {
+	client := &http.Client{}
+
+	byts, err := json.Marshal(body)
+	if err != nil {
+		return nil, err
+	}
+
+	reqBody := bytes.NewBuffer(byts)
+
+	req, err := http.NewRequest("POST", "https://api.openai.com/v1/completions", reqBody)
+	if err != nil {
+		return nil, err
+	}
+
+	defer req.Body.Close()
+
+	if o.Organization != "" {
+		req.Header.Add("OpenAI-Organization", o.Organization)
+	}
+	req.Header.Add("Content-Type", "application/json")
+	req.Header.Add("Authorization", "Bearer "+o.APIKey)
+
+	res, err := client.Do(req)
+	if err != nil {
+		return nil, err
+	}
+
+	// Need to do some sort of error checking here because it does not throw errors on non 200 statuses.
+	if res.StatusCode != http.StatusOK {
+		fmt.Printf("\nThe response error is: %+v", res)
+		return nil, errors.New("Invalid request.")
+	}
+
+	var resp CompletionResponse
+	err = json.NewDecoder(res.Body).Decode(&resp)
+	if err != nil {
+		return nil, err
+	}
+
+	return &resp, nil
+}
+
+func (o OpenAIClient) RequestChatCompletion(body ChatCompletionRequestBody) (*ChatCompletionResponse, error) {
 	client := &http.Client{}
 
 	byts, err := json.Marshal(body)
@@ -154,12 +197,20 @@ func main() {
 			fmt.Printf("Your max limit is %d, you entered %d. Please try again.", *maxTokens, len(text))
 		}
 
-		MODE, err := ProcessCommand(text, MODE)
-		if err != nil {
-			log.Fatal(err)
+		if ContainsCommand(text) {
+			cmd, err := ToCommand(text)
+			if err != nil {
+				log.Fatal(err)
+			}
+			err = ProcessCommand(*cmd)
+			if err != nil {
+				log.Fatal(err)
+			}
+			continue
 		}
 
 		if *apiMode == "image" {
+			fmt.Printf("\nChatGPT: Processing your image request...\n")
 			prompt, size := ProcessImagePrompt(text)
 			newReq := ImageGenerationRequestBody{
 				Size:           fmt.Sprintf("%dx%d", size, size),
@@ -177,24 +228,23 @@ func main() {
 			continue
 		}
 
-		if MODE == "default" {
-			// TODO: We're going to need to detect what model to use here
-			// based on the completion model selected.
-			newReq := ChatCompletionRequestBody{
-				Model:     *model,
-				MaxTokens: int64(*maxTokens),
-				Messages:  []ChatCompletionRequestMessage{{Role: *role, Content: text}},
-				N:         int64(*numChoices),
-			}
-
-			// TODO: We're going to want to also make this an interface instead so it can take either type.
-			response, err := newAiClient.RequestCompletion(newReq)
-			if err != nil {
-				log.Fatal(err)
-			}
-
-			fmt.Printf("\nChatGPT: %s\n", FormatChatResponseText(response))
+		fmt.Printf("\nChatGPT: Processing your request...\n")
+		// TODO: We're going to need to detect what model to use here
+		// based on the completion model selected.
+		newReq := ChatCompletionRequestBody{
+			Model:     *model,
+			MaxTokens: int64(*maxTokens),
+			Messages:  []ChatCompletionRequestMessage{{Role: *role, Content: text}},
+			N:         int64(*numChoices),
 		}
+
+		// TODO: We're going to want to also make this an interface instead so it can take either type.
+		response, err := newAiClient.RequestChatCompletion(newReq)
+		if err != nil {
+			log.Fatal(err)
+		}
+
+		fmt.Printf("\nChatGPT: %s\n", FormatChatResponseText(response))
 
 	}
 

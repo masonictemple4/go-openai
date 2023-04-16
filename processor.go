@@ -1,12 +1,66 @@
 package main
 
 import (
-	"os"
+	"errors"
 	"strconv"
 	"strings"
 )
 
+// create a data type to represent the following parts of this string :set mode image
+type Command struct {
+	// This will be set, get, help
+	Verb string
+	// The setting to configure
+	// 	apiMode, config, model, role, maxTokens, numChoices, username
+	Setting string
+	// Currently only available for env settings.
+	SubSetting string
+	// The subsetting to configure
+	// Example: apikey, orgid
+	Value string
+}
+
+// ContainsCommand will check the input text to ensure that it contains a command.
+func ContainsCommand(text string) bool {
+	colonIndex := strings.Index(text, ":")
+
+	return colonIndex == 0
+}
+
+// ToCommand will return a pointer to a new command from the text given to it.
+// Or an error if it's in the incorrect format.
+// Note: this can really be called mainly after ContainsCommand returns true.
+func ToCommand(text string) (*Command, error) {
+	if strings.Contains(text, ":") == false {
+		return nil, errors.New("Invalid command")
+	}
+	parts := strings.Split(strings.Split(text, ":")[1], " ")
+
+	if len(parts) > 4 {
+		return nil, errors.New("Invalid command")
+	}
+
+	if len(parts) == 4 {
+		return &Command{
+			Verb:       parts[0],
+			Setting:    parts[1],
+			SubSetting: parts[2],
+			Value:      parts[3],
+		}, nil
+	}
+	return &Command{
+		Verb:    parts[0],
+		Setting: parts[1],
+		Value:   parts[2],
+	}, nil
+}
+
+func ProcessCommand(cmd Command) error {
+	return nil
+}
+
 // Might want to think about how to return an error here.
+// The default is going to be 256x256 if the size fails to parse.
 func ProcessImagePrompt(text string) (string, int64) {
 	colonIndex := strings.Index(text, ":")
 
@@ -20,26 +74,4 @@ func ProcessImagePrompt(text string) (string, int64) {
 	}
 
 	return strings.TrimSpace(text[:colonIndex]), size
-}
-
-func ProcessCommand(cmd, curMode string) (string, error) {
-	colonIndex := strings.Index(cmd, ":")
-
-	var mode string
-	if colonIndex == 0 {
-		mode = strings.Split(cmd, ":")[1]
-	}
-
-	switch mode {
-	case "settings":
-		// TODO: Display settings menu and set some sort of global mode.
-		println("please choose a settings mode")
-		return mode, nil
-	case "exit":
-		os.Exit(-1)
-	default:
-		resp := "default"
-		return resp, nil
-	}
-	return "", nil
 }
