@@ -3,7 +3,13 @@ A wrapper around the openai api for golang
 
 ### TODOS:
 [x] Text completion
-
+[x] Convert to a real time input stream instead of just cmds
+[ ] Might want to add some sort of persistence layer
+[ ] Setup settings parsing and processing.
+[ ] Add support for image generation
+[ ] Add support for transcription generation
+[ ] Add support for translation generation
+[ ] Add support for uploading fine tuning documents.
 
 
 
