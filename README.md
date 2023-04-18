@@ -10,6 +10,7 @@ A wrapper around the openai api for golang
 [ ] Add support for transcription generation
 [ ] Add support for translation generation
 [ ] Add support for uploading fine tuning documents.
+[ ] Input validation, ignoring misc input ie scroll characters etc..
 
 
 
