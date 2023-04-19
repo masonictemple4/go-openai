@@ -187,6 +187,8 @@ func main() {
 	fmt.Println("Brought to you by: masonictemple4")
 	fmt.Println("------------------------------------")
 
+	done := make(chan bool)
+
 	for {
 		fmt.Printf("\n%s: ", *username)
 		text, _ := reader.ReadString('\n')
@@ -210,7 +212,8 @@ func main() {
 		}
 
 		if *apiMode == "image" {
-			fmt.Printf("\nChatGPT: Processing your image request...\n")
+			println()
+			go DisplayLoading("ChatGPT: Processing your image request", done)
 			prompt, size := ProcessImagePrompt(text)
 			newReq := ImageGenerationRequestBody{
 				Size:           fmt.Sprintf("%dx%d", size, size),
@@ -224,11 +227,15 @@ func main() {
 				log.Fatal(err)
 			}
 
+			done <- true
+			println()
+
 			fmt.Printf("\nChatGPT: %s\n", FormatImageResponseText(response))
 			continue
 		}
 
-		fmt.Printf("\nChatGPT: Processing your request...\n")
+		println()
+		go DisplayLoading("ChatGPT: Processing your request", done)
 		// TODO: We're going to need to detect what model to use here
 		// based on the completion model selected.
 		newReq := ChatCompletionRequestBody{
@@ -243,6 +250,9 @@ func main() {
 		if err != nil {
 			log.Fatal(err)
 		}
+
+		done <- true
+		println()
 
 		fmt.Printf("\nChatGPT: %s\n", FormatChatResponseText(response))
 
