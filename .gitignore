@@ -5,6 +5,7 @@
 *.so
 *.dylib
 go-openai
+*.excalidraw
 
 # Test binary, built with `go test -c`
 *.test
