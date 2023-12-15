@@ -2,7 +2,7 @@
 A wrapper around the openai api for golang
 
 ### TODOS:
-- [ ] Implement GPT-4 ASAP
+- [X] Implement GPT-4 ASAP
     - [ ] GPT-4 Vision.
     - [ ] Text Completions
     - [ ] Assistant Models
