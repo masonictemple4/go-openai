@@ -23,7 +23,8 @@ type ChatCompletionRequestBody struct {
 	// Generally recommend altering this or temperature but not both.
 	TopP float64 `json:"top_p"`
 	// How many completions to generate with each prompt
-	N int64 `json:"n"`
+	// Omitempty so that it's not included in the request.
+	N int64 `json:"n,omitempty"`
 	// Whether or not to stream back partial progress. If set, tokens will be sent
 	// ass data-only server-sent events as they become available. with the Stream
 	// terminated by a data: [Done] message.
@@ -32,7 +33,8 @@ type ChatCompletionRequestBody struct {
 	// The token count of your prompt plus max_tokens cannot exceed
 	// the model's context length. Most models have a context length
 	// of 2048 tokens (except for the newest models, which support 4096).
-	MaxTokens int64 `json:"max_tokens"`
+	// Leave omitempty so that it's not included in the request.
+	MaxTokens int64 `json:"max_tokens,omitempty"`
 	// Number between -2.0 and 2.0. Positive values penalize new tokens based on whether they appear
 	// in the text so far, increasing the model's likelihood to talk about new topics.
 	PresencePenalty float64 `json:"presence_penalty"`

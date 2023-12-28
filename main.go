@@ -21,7 +21,7 @@ func main() {
 	config := flag.String("l", "/etc/env/openai.env", "Config path.")
 	model := flag.String("m", openai.MODEL_GPT4, "language model to use.")
 	role := flag.String("r", openai.OpenAIRoleUser, "The role of the completion.")
-	maxTokens := flag.Int("t", 2048, "Max tokens to use.")
+	maxTokens := flag.Int("t", 0, "Max tokens to use.")
 	numChoices := flag.Int("c", 1, "How many choices/variations would you like.")
 	user, _ := user.Current()
 	username := flag.String("u", user.Username, "If you have a preferred username to be called by otherwise this defaults to your system username.")
@@ -51,8 +51,11 @@ func main() {
 
 		// convert clrf to lf
 		text = strings.Replace(text, "\n", "", -1)
-		if len(text) > *maxTokens {
+
+		// TODO: Pull this out into a function to estimate token count.
+		if *maxTokens > 0 && len(text) > *maxTokens {
 			fmt.Printf("Your max limit is %d, you entered %d. Please try again.", *maxTokens, len(text))
+			continue
 		}
 
 		if openai.ContainsCommand(text) {
@@ -91,18 +94,23 @@ func main() {
 		}
 
 		println()
+
 		go openai.DisplayLoading("ChatGPT: Processing your request", done)
-		// TODO: We're going to need to detect what model to use here
-		// based on the completion model selected.
+
 		newReq := openai.ChatCompletionRequestBody{
 			Model:          *model,
-			MaxTokens:      int64(*maxTokens),
 			Messages:       []openai.ChatCompletionRequestMessage{{Role: *role, Content: text}},
-			N:              int64(*numChoices),
 			ResponseFormat: openai.ChatCompletionRequestResponseFormat{Type: openai.ResponseFormatTypeText},
 		}
 
-		// TODO: We're going to want to also make this an interface instead so it can take either type.
+		if *maxTokens > 0 {
+			newReq.MaxTokens = int64(*maxTokens)
+		}
+
+		if *numChoices > 1 {
+			newReq.N = int64(*numChoices)
+		}
+
 		response, err := client.RequestChatCompletion(newReq)
 		if err != nil {
 			log.Fatal(err)

@@ -10,9 +10,15 @@ A wrapper around the openai api for golang
     - [ ] Text to speach
     - [ ] Speech to text (Would be so dope to talk to it and have it respond
     either calling a function to perform a task etc..)
-
 - [ ] Might want to add some sort of persistence layer
 - [ ] Setup settings parsing and processing.
+    - [ ] Add some sort of command like mode like slack to enable something like so:
+
+        ```
+        > /config mode audio 
+        > /config maxToken enable/disable or # to set the token limit to. 
+        > /config default
+        ```
 - [ ] Add support for image generation
 - [ ] Add support for transcription generation
 - [ ] Add support for translation generation
@@ -33,3 +39,4 @@ A wrapper around the openai api for golang
 
 
 ### Scratch notes
+
