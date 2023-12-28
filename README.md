@@ -33,9 +33,3 @@ A wrapper around the openai api for golang
 
 
 ### Scratch notes
-// Headers
-// Authorization: Bearer
-// OpenAI-Organization: org-xxxx (if the user wants to attribute these requests to the organization)
-
-// Possible routes.
-* 
