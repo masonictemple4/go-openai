@@ -18,8 +18,9 @@ A wrapper around the openai api for golang
 - [ ] Add support for translation generation
 - [ ] Add support for uploading fine tuning documents.
 - [ ] Input validation, ignoring misc input ie scroll characters etc..
-- [X] Text completion
-- [X] Convert to a real time input stream instead of just cmds
+- [ ] SSE Stream support for chat completion.
+- [ ] Format the response type to make it easier to copy responses.
+- [ ] Optimize the token settings so that i'm getting bigger/better responses.
 
 
 ## Inspiration:
