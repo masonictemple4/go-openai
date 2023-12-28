@@ -24,11 +24,11 @@ A wrapper around the openai api for golang
 
 
 ## Inspiration:
-[Calling Functions with Chat models](https://cookbook.openai.com/examples/how_to_call_functions_with_chat_models)
-[What are Embeddings?](https://platform.openai.com/docs/guides/embeddings/what-are-embeddings)
-[Vector Databases and Embeddings](https://platform.openai.com/docs/guides/embeddings/how-can-i-retrieve-k-nearest-embedding-vectors-quickly)
-[OpenAI Cookbook Vector Databases](https://cookbook.openai.com/examples/vector_databases/readme)
-[Token Counting With Tiktoken (Python)](https://cookbook.openai.com/examples/how_to_count_tokens_with_tiktoken)
+- [Calling Functions with Chat models](https://cookbook.openai.com/examples/how_to_call_functions_with_chat_models)
+- [What are Embeddings?](https://platform.openai.com/docs/guides/embeddings/what-are-embeddings)
+- [Vector Databases and Embeddings](https://platform.openai.com/docs/guides/embeddings/how-can-i-retrieve-k-nearest-embedding-vectors-quickly)
+- [OpenAI Cookbook Vector Databases](https://cookbook.openai.com/examples/vector_databases/readme)
+- [Token Counting With Tiktoken (Python)](https://cookbook.openai.com/examples/how_to_count_tokens_with_tiktoken)
 
 
 
